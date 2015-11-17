@@ -29,12 +29,12 @@
                 '<div class="imgCropper-canvas">',
                 '<img ng-src="{{image}}">',
                 '</div></div></div>',
-                '<div id="controls" ng-if="showControls">',
-                '<button ng-click="rotateLeft()" type="button" title="Rotate left"> &lt; </button>',
-                '<button ng-click="zoomOut()" type="button" title="Zoom out"> - </button>',
-                '<button ng-click="fit()" type="button" title="Fit image"> [ ] </button>',
-                '<button ng-click="zoomIn()" type="button" title="Zoom in"> + </button>',
-                '<button ng-click="rotateRight()" type="button" title="Rotate right"> &gt; </button>',
+                '<div class="controls" ng-if="showControls">',
+                '<button ng-click="rotateLeft()" class="rotate-left" type="button" title="Rotate left"> &lt; </button>',
+                '<button ng-click="zoomOut()" class="zoom-out" type="button" title="Zoom out"> - </button>',
+                '<button ng-click="fit()" class="fit" type="button" title="Fit image"> [ ] </button>',
+                '<button ng-click="zoomIn()" class="zoom-in" type="button" title="Zoom in"> + </button>',
+                '<button ng-click="rotateRight()" class="rotate-right" type="button" title="Rotate right"> &gt; </button>',
                 '</div>'].join(''),
             'link': link
         };
