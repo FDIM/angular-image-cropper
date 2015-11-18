@@ -7,9 +7,10 @@
             'width': 400,
             'height': 300,
             'zoomStep': 0.1,
-            'init': null,
+            'onLoad': angular.noop,
             'showControls': true,
-            'fitOnInit': false
+            'fitOnInit': false,
+            'croppingDelay':0
     });
 
 })(angular);

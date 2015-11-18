@@ -8,10 +8,11 @@
     directive.$inject = [
         'Cropper',
         'defaultConfig',
-        'Helper'
+        'Helper',
+        '$timeout'
     ];
 
-    function directive(Cropper, defaultConfig, Helper) {
+    function directive(Cropper, defaultConfig, Helper, $timeout) {
         return {
             'restrict': 'E',
             'scope': {
@@ -19,10 +20,11 @@
                 'destWidth': '@',
                 'destHeight': '@',
                 'zoomStep': '@',
-                'init': '@',
+                'onLoad': '=',
                 'croppedImage': '=',
                 'showControls': '=',
-                'fitOnInit': '='
+                'fitOnInit': '=',
+                'croppingDelay':'='
             },
             'template': ['<div class="frame">',
                 '<div class="imgCropper-window">',
@@ -47,7 +49,8 @@
             var gImage = element.find('img');
             var gCanvas = element.find('.imgCropper-canvas');
             var gWindow = element.find('.imgCropper-window');
-
+            var timeout;
+            
             /**
              * Merge default with attributes given
              */
@@ -55,8 +58,9 @@
             options.width = Number(scope.destWidth) || defaultConfig.width;
             options.height = Number(scope.destHeight) || defaultConfig.height;
             options.zoomStep = Number(scope.zoomStep) || defaultConfig.zoomStep;
-            options.init = scope.init || defaultConfig.init;
+            options.onLoad = scope.onLoad || defaultConfig.onLoad;
             options.fitOnInit = scope.fitOnInit || defaultConfig.fitOnInit;
+            options.croppingDelay = Number(scope.croppingDelay) || defaultConfig.croppingDelay;
 
             var zoomInFactor = 1 + options.zoomStep;
             var zoomOutFactor = 1 / zoomInFactor;
@@ -303,16 +307,32 @@
             };
             scope.zoomOut = function() {
                 zoom(zoomOutFactor);
-                getCroppedImage();
             };
-
-
-            var getCroppedImage = function() {
+            var publicApi = {
+              zoomIn:scope.zoomIn,
+              zoomOut: scope.zoomOut,
+              fit: scope.fit,
+              center: scope.center,
+              rotateLeft: scope.rotateLeft,
+              rotateRight: scope.rotateRight,
+              rotate: rotate
+            };
+            var cropImage = function(){
                 Cropper
-                    .crop(gImage[0], gData, options.width, options.height)
-                    .then(function(data) {
-                        scope.croppedImage = data;
-                    });
+                  .crop(gImage[0], gData, options.width, options.height)
+                  .then(function(data) {
+                      scope.croppedImage = data;
+                  });
+            };
+            var getCroppedImage = function(noDelay) {
+                if (options.croppingDelay>0 && !noDelay) {
+                  if (timeout) {
+                    $timeout.cancel(timeout);
+                  }
+                  timeout = $timeout(cropImage,1000);
+                } else {
+                  cropImage();
+                }
             };
 
             // calls
@@ -320,11 +340,13 @@
                 var thisImage = this;
                 setWrapper();
                 hardwareAccelerate(gImage);
-                if (thisImage.naturalWidth < options.width || thisImage.naturalHeight < options.height || options.fitOnInit)
+                if (thisImage.naturalWidth < options.width || thisImage.naturalHeight < options.height || options.fitOnInit){
                     fit();
+                }
                 center();
                 element.find('img').on(events.start, start);
-                getCroppedImage();
+                getCroppedImage(true);
+                options.onLoad(publicApi);
 
             };
 
