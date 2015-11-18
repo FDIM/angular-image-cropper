@@ -126,7 +126,7 @@
             var bind = function() {
                 gCanvas.addClass('imgCropper-dragging');
                 body.on(events.move, drag);
-                body.on(events.stop, unbind)
+                body.on(events.stop, unbind);
                 return gCanvas;
             };
 
