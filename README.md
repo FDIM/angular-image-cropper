@@ -54,6 +54,8 @@ angular.module('myapp', ['imageCropper']);
     dest-height="480"
     show-controls="vm.showControls"
     cropped-image="vm.imageResult"
+    cropping-delay="200"
+    on-load="vm.onLoad"
 ></image-cropper>
 ```
 
@@ -66,6 +68,8 @@ Angular image cropper comes with some options to simplify your development:
 * `dest-height` _string_ height of the cropped image
 * `show-controls` _boolean_ Display or not the control buttons (`true` by default)
 * `cropped-image` _boolean_ Your angular model that will receive the cropped image
+* `cropping-delay` _int Number of ms to delay/debounce image cropping(cropped-image will only be updated when timeout has passed). 
+* `on-load` _function Invoked when image loads. Public api is passed to it to make it possible to develop custom controls.
 
 ## License
 
