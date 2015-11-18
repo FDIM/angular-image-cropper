@@ -124,15 +124,17 @@
             };
 
             var bind = function() {
-                body.addClass('imgCropper-dragging');
-                gCanvas.on(events.move, drag);
-                return gCanvas.on(events.stop, unbind);
+                gCanvas.addClass('imgCropper-dragging');
+                body.on(events.move, drag);
+                body.on(events.stop, unbind)
+                return gCanvas;
             };
 
             var unbind = function(e) {
-                body.removeClass('imgCropper-dragging');
-                gCanvas.off(events.move, drag);
-                gCanvas.off(events.stop, unbind);
+                gCanvas.removeClass('imgCropper-dragging');
+                body.off(events.move, drag);
+                body.off(events.stop, unbind);
+                return gCanvas;
             };
 
             var offset = function(left, top) {
