@@ -134,7 +134,7 @@
 
                 // Ready to process
                 gEnabled = true;
-            };
+            }
 
             // events
             function start(e) {
@@ -145,21 +145,21 @@
                 e.stopImmediatePropagation();
                 pointerPosition = Helper.getPointerPosition(e);
                 return bind();
-            };
+            }
 
             function bind() {
                 element.parent().addClass('imgCropper-dragging');
                 body.on(events.move, drag);
                 body.on(events.stop, unbind);
                 return gCanvas;
-            };
+            }
 
             function unbind(e) {
                 element.parent().removeClass('imgCropper-dragging');
                 body.off(events.move, drag);
                 body.off(events.stop, unbind);
                 return gCanvas;
-            };
+            }
 
             function offset(left, top) {
                 if(left || left === 0) {
@@ -193,7 +193,7 @@
                 if(options.autoCrop){
                   getCroppedImage();
                 }
-            };
+            }
 
             // actions
             function drag(e) {
@@ -207,7 +207,7 @@
                 left = dx === 0 ? null : gLeft - dx / gWindow[0].clientWidth;
                 top = dy === 0 ? null : gTop - dy / gWindow[0].clientHeight;
                 return offset(left, top);
-            };
+            }
 
             function zoom(factor) {
                 var h, left, top, w;
@@ -232,7 +232,7 @@
                 left = (gLeft + 0.5) * factor - 0.5;
                 top = (gTop + 0.5) * factor - 0.5;
                 return offset(left, top);
-            };
+            }
 
             function fit() {
                 var prevWidth, relativeRatio;
@@ -318,7 +318,7 @@
                 if (options.autoCrop) { 
                   getCroppedImage();
                 }
-            };
+            }
 
             function rotateLeft() {
                 rotate(-90);
@@ -362,7 +362,7 @@
                 
             }
             function onImageLoad(){
-              var thisImage = this;
+                var thisImage = gImage[0];
                 setWrapper();
                 hardwareAccelerate(gImage);
                 if (thisImage.naturalWidth < options.width || thisImage.naturalHeight < options.height || options.fitOnInit){
