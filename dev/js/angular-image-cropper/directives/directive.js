@@ -344,6 +344,7 @@
                   .crop(gImage[0], gData, options.width, options.height)
                   .then(function(data) {
                       scope.croppedImage = data;
+                      return data;
                   });
             }
           
