@@ -24,17 +24,18 @@
         </header>
         <section class="cropper">
             <div ng-controller="mainController as vm">
-                <image-cropper image="{{vm.imageUrl}}"
+                <image-cropper image="vm.imageUrl"
                     dest-width="640"
                     dest-height="480"
                     show-controls="vm.showControls"
                     cropped-image="vm.imageResult"
                     fit-on-init="vm.fit"
-                    cropping-delay="500"
+                    auto-crop="true"
+                    auto-crop-delay="50"
                     on-load="vm.onLoad"
                 ></image-cropper>
 
-                <div class="result">
+                <div class="result" ng-click="vm.api.crop()">
                     <img class="frame" ng-src="{{vm.imageResult}}" width="50%">
                 </div>
             </div>

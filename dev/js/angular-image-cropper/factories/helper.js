@@ -3,10 +3,10 @@
 
     angular
         .module('imageCropper')
-        .factory('Helper', factory);
+        .factory('imageCropperHelper', factory);
 
     factory.$inject = [
-        'defaultConfig'
+        'imageCropperDefaultConfig'
     ];
 
     function factory(defaultConfig) {

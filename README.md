@@ -49,12 +49,13 @@ angular.module('myapp', ['imageCropper']);
 ### The directive
 
 ```html
-<image-cropper image="{{vm.imageUrl}}"
+<image-cropper image="vm.imageUrl"
     dest-width="640"
     dest-height="480"
     show-controls="vm.showControls"
     cropped-image="vm.imageResult"
-    cropping-delay="200"
+    auto-crop="true"
+    auto-crop-delay="200"
     on-load="vm.onLoad"
 ></image-cropper>
 ```
@@ -68,8 +69,22 @@ Angular image cropper comes with some options to simplify your development:
 * `dest-height` _string_ height of the cropped image
 * `show-controls` _boolean_ Display or not the control buttons (`true` by default)
 * `cropped-image` _boolean_ Your angular model that will receive the cropped image
-* `cropping-delay` _int Number of ms to delay/debounce image cropping(cropped-image will only be updated when timeout has passed). 
-* `on-load` _function Invoked when image loads. Public api is passed to it to make it possible to develop custom controls.
+* `auto-crop` _boolean_ Whether auto cropping is enabled or not. If not you have to manually call `api.crop` to initiate cropping (`true` by default)
+* `auto-crop-delay` _int_ Number of ms to delay/debounce image cropping, improves performance on mobiles (`0` by default)
+* `on-load` _function_ Invoked when image loads. Public api is passed to it to make it possible to develop custom controls
+
+## Api
+
+Object passed to on-load has these methods:
+
+* zoomIn - Zooms in by provided zoomStep
+* zoomOut -  Zooms out by provided zoomStep
+* fit - fits and center the image
+* center - centers the image 
+* rotateLeft - shorthand to rotate(-90)
+* rotateRight - shorthand to rotate(90)
+* rotate - rotates image by specified number of degrees (must be deg%90===0)
+* crop - crops image in current position and returns promise when its done
 
 ## License
 

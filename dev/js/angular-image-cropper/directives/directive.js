@@ -6,17 +6,18 @@
         .directive('imageCropper', directive);
 
     directive.$inject = [
-        'Cropper',
-        'defaultConfig',
-        'Helper',
-        '$timeout'
+        'imageCropper',
+        'imageCropperDefaultConfig',
+        'imageCropperHelper',
+        '$timeout',
+        '$q'
     ];
 
-    function directive(Cropper, defaultConfig, Helper, $timeout) {
+    function directive(Cropper, defaultConfig, Helper, $timeout, $q) {
         return {
             'restrict': 'E',
             'scope': {
-                'image': '@',
+                'image': '=',
                 'destWidth': '@',
                 'destHeight': '@',
                 'zoomStep': '@',
@@ -24,7 +25,8 @@
                 'croppedImage': '=',
                 'showControls': '=',
                 'fitOnInit': '=',
-                'croppingDelay':'='
+                'autoCrop':'=',
+                'autoCropDelay': '='
             },
             'template': ['<div class="frame">',
                 '<div class="imgCropper-window">',
@@ -60,8 +62,8 @@
             options.zoomStep = Number(scope.zoomStep) || defaultConfig.zoomStep;
             options.onLoad = scope.onLoad || defaultConfig.onLoad;
             options.fitOnInit = scope.fitOnInit || defaultConfig.fitOnInit;
-            options.croppingDelay = Number(scope.croppingDelay) || defaultConfig.croppingDelay;
-
+            options.autoCrop = scope.autoCrop ? true : false;
+            options.autoCropDelay = Number(scope.autoCropDelay) || defaultConfig.autoCropDelay;
             var zoomInFactor = 1 + options.zoomStep;
             var zoomOutFactor = 1 / zoomInFactor;
 
@@ -86,12 +88,34 @@
             };
 
             var pointerPosition;
-
+          
+            // buttons
+            scope.rotateLeft = rotateLeft;
+            scope.rotateRight = rotateRight;
+            scope.center = center;
+            scope.fit = fitIn;
+            scope.zoomIn = zoomIn;
+            scope.zoomOut = zoomOut;
+            // exposed via on-load callback
+            var publicApi = {
+              zoomIn: zoomIn,
+              zoomOut: zoomOut,
+              fit: fitIn,
+              center: scope.center,
+              rotateLeft: rotateLeft,
+              rotateRight: rotateRight,
+              rotate: rotate,
+              crop: cropImage
+            };
+            
+            // calls
+            gImage[0].onload = onImageLoad;
+          
             /**
              * -------------------
              */
 
-            var setWrapper = function() {
+            function setWrapper() {
                 gWidth = gImage[0].naturalWidth / options.width;
                 gHeight = gImage[0].naturalHeight / options.height;
 
@@ -113,7 +137,7 @@
             };
 
             // events
-            var start = function(e) {
+            function start(e) {
                 if(!(gEnabled && Helper.validEvent(e))) {
                     return;
                 }
@@ -123,21 +147,21 @@
                 return bind();
             };
 
-            var bind = function() {
-                gCanvas.addClass('imgCropper-dragging');
+            function bind() {
+                element.parent().addClass('imgCropper-dragging');
                 body.on(events.move, drag);
                 body.on(events.stop, unbind);
                 return gCanvas;
             };
 
-            var unbind = function(e) {
-                gCanvas.removeClass('imgCropper-dragging');
+            function unbind(e) {
+                element.parent().removeClass('imgCropper-dragging');
                 body.off(events.move, drag);
                 body.off(events.stop, unbind);
                 return gCanvas;
             };
 
-            var offset = function(left, top) {
+            function offset(left, top) {
                 if(left || left === 0) {
                     if(left < 0) {
                         left = 0;
@@ -165,12 +189,14 @@
                     gTop = top;
                     gData.y = Math.round(top * options.height);
                 }
-
-                return getCroppedImage();
+              
+                if(options.autoCrop){
+                  getCroppedImage();
+                }
             };
 
             // actions
-            var drag = function(e) {
+            function drag(e) {
                 var dx, dy, left, p, top;
                 e.preventDefault();
                 e.stopImmediatePropagation();
@@ -183,7 +209,7 @@
                 return offset(left, top);
             };
 
-            var zoom = function(factor) {
+            function zoom(factor) {
                 var h, left, top, w;
                 if(factor <= 0 || factor === 1) {
                     return;
@@ -208,7 +234,7 @@
                 return offset(left, top);
             };
 
-            var fit = function() {
+            function fit() {
                 var prevWidth, relativeRatio;
 
                 prevWidth = gWidth;
@@ -226,15 +252,17 @@
                 gCanvas[0].style.height = (gHeight * 100).toFixed(2) + '%';
 
                 gData.scale *= gWidth / prevWidth;
+                
+                if (options.autoCrop) {
+                  getCroppedImage();
+                }
+            }
 
-                return getCroppedImage();
-            };
-
-            var center = function() {
+            function center() {
                 return offset((gWidth - 1) / 2, (gHeight - 1) / 2);
-            };
+            }
 
-            var rotate = function(angle) {
+            function rotate(angle) {
                 var canvasRatio, h, w, _ref, _ref1, _ref2;
 
                 if(!Helper.canTransform()) {
@@ -287,59 +315,54 @@
 
                 gData.angle = gAngle;
 
-                return getCroppedImage();
+                if (options.autoCrop) { 
+                  getCroppedImage();
+                }
             };
 
-            // buttons
-            scope.rotateLeft = function() {
+            function rotateLeft() {
                 rotate(-90);
-            };
-            scope.rotateRight = function() {
+            }
+            function rotateRight() {
                 rotate(90);
-            };
-            scope.center = function() {
-                center();
-            };
-            scope.fit = function() {
+            }
+            function fitIn() {
                 fit();
                 center();
-            };
-            scope.zoomIn = function() {
+            }
+            
+            function zoomIn(){
                 zoom(zoomInFactor);
-            };
-            scope.zoomOut = function() {
+            }
+          
+            function zoomOut() {
                 zoom(zoomOutFactor);
-            };
-            var publicApi = {
-              zoomIn:scope.zoomIn,
-              zoomOut: scope.zoomOut,
-              fit: scope.fit,
-              center: scope.center,
-              rotateLeft: scope.rotateLeft,
-              rotateRight: scope.rotateRight,
-              rotate: rotate
-            };
-            var cropImage = function(){
-                Cropper
+            }
+          
+            function cropImage(){
+                return Cropper
                   .crop(gImage[0], gData, options.width, options.height)
                   .then(function(data) {
                       scope.croppedImage = data;
                   });
-            };
-            var getCroppedImage = function(noDelay) {
-                if (options.croppingDelay>0 && !noDelay) {
-                  if (timeout) {
-                    $timeout.cancel(timeout);
-                  }
-                  timeout = $timeout(cropImage,1000);
-                } else {
-                  cropImage();
-                }
-            };
-
-            // calls
-            gImage[0].onload = function() {
-                var thisImage = this;
+            }
+          
+            function getCroppedImage(noDelay) {
+                return $q(function(resolve, reject){
+                  if (options.autoCropDelay>0 && !noDelay) {
+                    if (timeout) {
+                      $timeout.cancel(timeout);
+                    }
+                    timeout = $timeout(cropImage, options.autoCropDelay);
+                    resolve(timeout);
+                    } else {
+                      resolve(cropImage());
+                    }
+                });
+                
+            }
+            function onImageLoad(){
+              var thisImage = this;
                 setWrapper();
                 hardwareAccelerate(gImage);
                 if (thisImage.naturalWidth < options.width || thisImage.naturalHeight < options.height || options.fitOnInit){
@@ -347,20 +370,22 @@
                 }
                 center();
                 element.find('img').on(events.start, start);
-                getCroppedImage(true);
+              
+                if (options.autoCrop) {
+                  getCroppedImage(true);
+                }
                 options.onLoad(publicApi);
-
-            };
-
-            var hardwareAccelerate = function(el) {
+            }
+          
+            function hardwareAccelerate(el) {
                 return angular.element(el).css({
                     '-webkit-perspective': 1000,
                     'perspective': 1000,
                     '-webkit-backface-visibility': 'hidden',
                     'backface-visibility': 'hidden'
                 });
-            };
-
+            }
+          
         }
     }
 })(angular);

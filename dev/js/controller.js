@@ -17,7 +17,9 @@
         vm.imageResult = '';
         vm.showControls = true;
         vm.fit = false;
+        vm.api = {};
         vm.onLoad = function(api){
+          vm.api = api;
           console.info(api);
         }
     }

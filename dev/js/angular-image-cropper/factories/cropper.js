@@ -3,10 +3,10 @@
 
     angular
         .module('imageCropper')
-        .factory('Cropper', factory);
+        .factory('imageCropper', factory);
 
     factory.$inject = [
-        'Helper',
+        'imageCropperHelper',
         '$q'
     ];
 

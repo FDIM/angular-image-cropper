@@ -3,14 +3,15 @@
 
     angular
         .module('imageCropper')
-        .constant('defaultConfig', {
+        .constant('imageCropperDefaultConfig', {
             'width': 400,
             'height': 300,
             'zoomStep': 0.1,
             'onLoad': angular.noop,
             'showControls': true,
             'fitOnInit': false,
-            'croppingDelay':0
+            'autoCrop':true,
+            'autoCropDelay':0
     });
 
 })(angular);
